@@ -24,6 +24,9 @@ VALUES ('Cebolla', 'Allium cepa', 'Cabezona Normal')
 INSERT INTO c_vegetables(Nombre, Categoria, Tipo)
 VALUES ('Tomate', 'Solanum lycopersicum', 'Maduro')
 ;
+INSERT INTO c_vegetables(Nombre, Categoria, Tipo)
+VALUES ('Papa', 'Solanum tuberosum', 'Pastusa')
+;
 
 # TABLA CARNES
 CREATE TABLE IF NOT EXISTS c_carnes(
@@ -79,16 +82,60 @@ CREATE TABLE IF NOT EXISTS recetas(
     Nombre VARCHAR(200) NOT NULL,
     Descripcion VARCHAR(1000) NOT NULL,
     Tiempo_Promedio_Min TIME NOT NULL,
-    Id_vegetable INT NOT NULL,
-    Id_carne INT NOT NULL,
-    Id_fruta INT NOT NULL,
-    PRIMARY KEY(Id_receta),
-    FOREIGN KEY(Id_vegetable) REFERENCES c_vegetables(Id_vegetal),
-    FOREIGN KEY(Id_carne) REFERENCES c_carnes(Id_carne),
-    FOREIGN KEY(Id_fruta) REFERENCES c_frutas(Id_fruta)
+    PRIMARY KEY(Id_receta)
 );
 
+DROP TABLE recetas;
+
+ALTER TABLE recetas MODIFY Id_fruta INT;
+
+SELECT *
+FROM c_vegetables
+;
 
 SELECT *
 FROM recetas
 ;
+
+INSERT INTO recetas(Id_receta, Nombre, Descripcion, Tiempo_Promedio_Min)
+VALUES(1, 'Sudado de carne', 'Sudado de cadera con tomate, cebolla y papa pastusa', '00:45:00')
+;
+
+INSERT INTO recetas(Id_receta, Nombre, Descripcion, Tiempo_Promedio_Min, Id_vegetable, Id_carne)
+VALUES(1, 'Sudado de carne', 'Sudado de cadera con tomate, cebolla y papa pastusa', '00:45:00', 1, 1)
+;
+
+
+# TABLA GENERAL
+CREATE TABLE IF NOT EXISTS c_ingredientes(
+	Id_ingredientes INT AUTO_INCREMENT NOT NULL,
+    Id_receta INT,
+    Id_vegetal INT,
+    Id_fruta INT,
+    Id_carne INT,
+    PRIMARY KEY(Id_ingredientes),
+    FOREIGN KEY(Id_receta) REFERENCES recetas(Id_receta),
+    FOREIGN KEY(Id_vegetal) REFERENCES c_vegetables(Id_vegetal),
+    FOREIGN KEY(Id_fruta) REFERENCES c_frutas(Id_fruta),
+    FOREIGN KEY(Id_carne) REFERENCES c_carnes(Id_carnes)
+);
+
+INSERT INTO c_ingredientes(Id_receta, Id_vegetal, Id_carne)
+VALUES (1, 1, 1)
+;
+
+INSERT INTO c_ingredientes(Id_receta, Id_vegetal)
+VALUES (1, 3)
+;
+
+INSERT INTO c_ingredientes(Id_receta, Id_vegetal)
+VALUES (1, 4)
+;
+
+SELECT V.Nombre, V.Tipo, C.Nombre, C.Tipo, R.Nombre, R.Descripcion, R.Tiempo_Promedio_Min
+FROM c_ingredientes I
+LEFT JOIN recetas AS R ON I.Id_receta = R.Id_receta
+LEFT JOIN c_vegetables AS V ON I.Id_vegetal = V.Id_vegetal
+LEFT JOIN c_carnes AS C ON I.Id_carne = C.Id_carne
+;
+
