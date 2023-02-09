@@ -120,6 +120,10 @@ CREATE TABLE IF NOT EXISTS c_ingredientes(
     FOREIGN KEY(Id_carne) REFERENCES c_carnes(Id_carnes)
 );
 
+SELECT *
+FROM c_ingredientes
+;
+
 INSERT INTO c_ingredientes(Id_receta, Id_vegetal, Id_carne)
 VALUES (1, 1, 1)
 ;
@@ -132,10 +136,34 @@ INSERT INTO c_ingredientes(Id_receta, Id_vegetal)
 VALUES (1, 4)
 ;
 
-SELECT V.Nombre, V.Tipo, C.Nombre, C.Tipo, R.Nombre, R.Descripcion, R.Tiempo_Promedio_Min
-FROM c_ingredientes I
-LEFT JOIN recetas AS R ON I.Id_receta = R.Id_receta
-LEFT JOIN c_vegetables AS V ON I.Id_vegetal = V.Id_vegetal
-LEFT JOIN c_carnes AS C ON I.Id_carne = C.Id_carne
+SELECT I.Nombre, I.Tipo, I.Tipo_Comida , I.Receta
+FROM C_ingredientes_VW I
+LEFT JOIN c_vegetables AS V ON I.Id_ingrediente = V.Id_vegetal
+LEFT JOIN c_carnes AS C ON I.Id_ingrediente = C.Id_carne
+WHERE I.Receta = 'Sudado de carne'
 ;
 
+
+CREATE VIEW C_ingredientes_VW AS (
+SELECT V.Id_vegetal AS Id_ingrediente , V.Nombre, V.Tipo, 'V' as Tipo_Comida, R.Nombre as Receta
+FROM c_vegetables V
+LEFT JOIN c_ingredientes AS I ON V.Id_vegetal = I.Id_vegetal
+LEFT JOIN recetas AS R ON I.Id_receta = R.Id_receta
+UNION ALL
+SELECT C.Id_carne, C.Nombre AS Id_ingrediente, C.Tipo, 'C' as Tipo_Comida, R.Nombre as Receta
+FROM c_carnes C
+LEFT JOIN c_ingredientes AS I ON C.Id_carne = I.Id_carne
+LEFT JOIN recetas AS R ON I.Id_receta = R.Id_receta
+UNION ALL
+SELECT F.Id_fruta, F.Nombre AS Id_ingrediente , F.Tipo, 'F' as Tipo_Comida, R.Nombre as Receta
+FROM c_frutas F
+LEFT JOIN c_ingredientes AS I ON F.Id_fruta = I.Id_fruta
+LEFT JOIN recetas AS R ON I.Id_receta = R.Id_receta
+)
+;
+
+SELECT *
+FROM c_ingredientes_VW
+;
+
+DROP VIEW C_ingredientes_VW;
